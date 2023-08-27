@@ -1,8 +1,7 @@
-# animalgrowing
-
 import pygame as p
 import os
 import random
+import time
 ##############################################################
 # 기본 초기화 (반드시 해야 하는 것들)
 p.init()
@@ -55,16 +54,13 @@ dd_y_pos = 0
 
 to_x = 0
 
-#미니게임 점수 변수
-score = 0
-#font = p.font.load(os.path.join(current_path, "Ownglyph_2022_UWY_Yoon_Yeong-rg"), 36)
 
 p.mixer.music.load(os.path.join(image_path, "mymistake.mp3"))
-p.mixer.music.play(-1)
+#p.mixer.music.play(-1)
 
 timer_interval = 100  # 100초
 timer_event = p.USEREVENT + 1
-p.time.set_timer(timer_event, timer_interval * 1000)  # 밀리초 단위로 설정
+#p.time.set_timer(timer_event, timer_interval * 1000)  # 밀리초 단위로 설정
 
 # 점수
 score = 0
@@ -76,15 +72,25 @@ timer_running = True
 running = True
 running = True
 to_x = 0  # 플레이어 이동 방향 초기화
+score_text = font.render("점수: 0", True, (0, 0, 0))
 
 while running:
     dt = clock.tick(60)
-    
+    start_time = p.time.get_ticks()
     d_y_pos += 14
     dd_y_pos += 9
-    
-    #p.time_sleep
 
+    screen.blit(background, (0, 0))
+    screen.blit(character, (character_x_pos, character_y_pos))
+    screen.blit(d, (d_x_pos, d_y_pos))
+    screen.blit(dd, (dd_x_pos, dd_y_pos))
+    
+    screen.blit(score_text, ((screen_width - score_text.get_width()) / 2, 10))
+    p.display.update()
+   
+    #p.time_sleep
+    
+    
     for event in p.event.get():
         if event.type == p.QUIT:
             running = False
@@ -101,22 +107,27 @@ while running:
         elif event.type == p.KEYUP:
             if event.key == p.K_LEFT or event.key == p.K_RIGHT:
                 to_x = 0
+
     
     # 타이머가 실행 중일 때
     if timer_running == True:
         # 남은 시간 계산
         remaining_time = max(0, (timer_interval * 1000 - p.time.get_ticks()) // 1000)
         timer_text = font.render(f"남은 시간: {remaining_time}초", True, (0, 0, 0))
+        score_text = font.render(f"점수: {score}", True, (0, 0, 0))
+        screen.blit(timer_text, (10, 10))
+        
         
     else:
         # 결과 창
         screen.fill((255, 255, 255))
-        #timer_text = font.render(f"게임 종료 - 점수: {score}", True, (0, 0, 0))
+        score_text = font.render(f"게임 종료 - 점수: {score}", True, (0, 0, 0))
     
     # 캐릭터 위치 업데이트
     character_x_pos += to_x
 
     if character_x_pos < 0:
+        score += 1
         character_x_pos = 0 
     elif character_x_pos > screen_width - character_width:
         character_x_pos = screen_width - character_width
@@ -124,11 +135,13 @@ while running:
 
 
     if d_y_pos > screen_height - d_height:
+        score += 1
         d_y_pos = 0
         d_x_pos = random.randint(0, screen_width - d_width)
         print(d_x_pos)
 
     if dd_y_pos > screen_height - dd_height:
+        score += 1
         dd_y_pos = 0
         dd_x_pos = random.randint(0, screen_width - dd_width)
         print(dd_x_pos)
@@ -152,9 +165,11 @@ while running:
     d_rect = character.get_rect()
     d_rect.top = d_y_pos
     d_rect.left = d_x_pos
+
     if character_rect.colliderect(d_rect):
         print("crashed")
-        timer_text = font.render(f"게임 종료 - 점수: {score}", True, (0, 0, 0))
+        score_text = font.render(f"게임 종료 - 점수: {score}", True, (0, 0, 0))
+        time.sleep(3)
         running = False
 
     dd_rect = character.get_rect()
@@ -162,7 +177,8 @@ while running:
     dd_rect.left = dd_x_pos
     if character_rect.colliderect(dd_rect):
         print("crashed")
-        timer_text = font.render(f"게임 종료 - 점수: {score}", True, (0, 0, 0))
+        score_text = font.render(f"게임 종료 - 점수: {score}", True, (0, 0, 0))
+        time.sleep(3)
         running = False
 
     # 5. 화면에 그리기
@@ -171,6 +187,7 @@ while running:
     screen.blit(d, (d_x_pos, d_y_pos))
     screen.blit(dd, (dd_x_pos, dd_y_pos))
     screen.blit(timer_text, (10, 10))
+    screen.blit(score_text, ((screen_width - score_text.get_width()) / 2, 10))
     p.display.update()
 
 p.quit()
