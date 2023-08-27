@@ -159,7 +159,7 @@ while running:
     
 
     character_rect = character.get_rect()
-    character_rect.top = character_y_pos
+    character_rect.top = character_y_pos - 10
     character_rect.left = character_x_pos
 
     d_rect = character.get_rect()
